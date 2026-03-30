@@ -1,0 +1,14 @@
+{
+  "emailField": "#userEmail",
+  "passwordField": "#userPassword",
+  "loginButton": "[value='Login']",
+  "toastMessage": "#toast-container",
+
+  "addToCartButton": "getByRole(button, Add To Cart)",
+  "cartButton": "getByRole(button, Cart)",
+  "checkoutButton": "getByRole(button, Buy Now)",
+  "placeOrderLink": "//a[contains(text(),'Place Order')]",
+
+  "countryInput": "getByPlaceholder(Select Country)",
+  "countryOptionIndia": "getByRole(button, India)"
+}

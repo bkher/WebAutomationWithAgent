@@ -1,0 +1,6 @@
+{
+  "emailField": "getByPlaceholder(Email)",
+  "passwordField": "#userPassword",
+  "loginButton": "getByRole(button, Login)",
+  "errorMessage": "#toast-container"
+}

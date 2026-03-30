@@ -1,0 +1,8 @@
+{
+  "name": "dev",
+  "baseUrl": "https://rahulshettyacademy.com",
+  "validEmail": "testuser12@email.com",
+  "validPassword": "Pass1234$",
+  "invalidEmail": "testuser@email.com",
+  "invalidPassword": "password"
+}

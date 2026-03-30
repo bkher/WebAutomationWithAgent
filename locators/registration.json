@@ -1,0 +1,18 @@
+{
+  "registerLink": "//a[contains(text(),'Register here')]",
+
+  "firstNameField": "#firstName",
+  "lastNameField": "#lastName",
+  "emailField": "#userEmail",
+  "mobileField": "#userMobile",
+  "passwordField": "#userPassword",
+  "confirmPasswordField": "#confirmPassword",
+
+  "occupationDropdown": "[formcontrolname='occupation']",
+
+  "termsCheckbox": "[type='checkbox']",
+  "genderFemale": "[value='Female']",
+  "registerButton": "[value='Register']",
+
+  "toastMessage": "#toast-container"
+}

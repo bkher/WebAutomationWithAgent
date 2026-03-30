@@ -1,0 +1,27 @@
+[
+  {
+    "step": 1,
+    "action": "goto",
+    "status": "PASSED"
+  },
+  {
+    "step": 2,
+    "action": "fill",
+    "status": "PASSED"
+  },
+  {
+    "step": 3,
+    "action": "fill",
+    "status": "PASSED"
+  },
+  {
+    "step": 4,
+    "action": "click",
+    "status": "PASSED"
+  },
+  {
+    "step": 5,
+    "action": "verifyText",
+    "status": "PASSED"
+  }
+]

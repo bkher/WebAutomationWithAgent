@@ -1,0 +1,10 @@
+Feature: User Registration Functionality
+Application URL: https://rahulshettyacademy.com/client/#/auth/login
+
+Requirements:
+1. From the login page, users can navigate to the registration form by clicking the "Register" link (locator: registerLink).
+2. The registration form collects: First Name (firstNameField), Last Name (lastNameField), Email (emailField), Mobile Number (mobileField), Password (passwordField), Confirm Password (confirmPasswordField), Occupation (occupationDropdown - options: Engineer, Doctor, Student), Gender (genderFemale), and Terms checkbox (termsCheckbox).
+3. Submitting the form with an already-registered email should display: "User already exisits with this Email Id!" in the toast (toastMessage).
+4. Submitting with a weak password (e.g., "pass1234" without uppercase/special char) should fail registration.
+5. Submitting with all valid and unique data should display "Registration successful" toast and allow the user to log in.
+6. The Register button locator is: registerButton

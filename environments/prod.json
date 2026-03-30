@@ -1,0 +1,8 @@
+{
+  "name": "prod",
+  "baseUrl": "https://rahulshettyacademy.com",
+  "validEmail": "produser@email.com",
+  "validPassword": "Pass1234$",
+  "invalidEmail": "invalid@email.com",
+  "invalidPassword": "wrongpass"
+}

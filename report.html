@@ -1,0 +1,103 @@
+
+  <h1>🚀 Test Execution Report</h1>
+  <p><strong>Environment:</strong> dev &nbsp;|&nbsp; <strong>Base URL:</strong> https://rahulshettyacademy.com</p>
+
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f4f4f4; }
+    .passed { background: #d4edda; }
+    .failed { background: #f8d7da; }
+  </style>
+  
+    <h3>Total: 13 | Passed: 12 | Failed: 1</h3>
+  <h2>Test 1: AddToCartAndCheckout.md - Test Case 1: Login and add product to cart and checkout</h2><table>
+      <tr>
+        <th>Step</th>
+        <th>Name</th>
+        <th>Action</th>
+        <th>Status</th>
+        <th>Error</th>
+      </tr><tr>
+        <td>1</td>
+        <td>Open Login Page</td>
+        <td>goto</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>2</td>
+        <td>Enter Email: testuser12@email.com</td>
+        <td>fill</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>3</td>
+        <td>Enter Password: Pass1234$</td>
+        <td>fill</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>4</td>
+        <td>Click Login: loginButton</td>
+        <td>click</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>5</td>
+        <td>Verify Login Success: Login Successfully</td>
+        <td>verifyText</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>6</td>
+        <td>Add Product To Cart: addToCartButton</td>
+        <td>click</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>7</td>
+        <td>Open Cart: cartButton</td>
+        <td>click</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>8</td>
+        <td>Click Checkout: checkoutButton</td>
+        <td>click</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>9</td>
+        <td>Enter Country: India</td>
+        <td>fill</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>10</td>
+        <td>Enter Country: India</td>
+        <td>fillByCharacter</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>11</td>
+        <td>Select India: countryOptionIndia</td>
+        <td>click</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr><tr>
+        <td>12</td>
+        <td>Verify Place Order Button: Place Order</td>
+        <td>click</td>
+        <td class="failed">FAILED</td>
+        <td>locator.click: Unexpected token "" while parsing css selector "". Did you mean to CSS.escape it?
+Call log:
+[2m  - waiting for[22m
+</td>
+      </tr><tr>
+        <td>13</td>
+        <td>Verify Place Order Button: Place Order</td>
+        <td>verifyText</td>
+        <td class="passed">PASSED</td>
+        <td></td>
+      </tr></table>

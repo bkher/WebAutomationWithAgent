@@ -1,0 +1,26 @@
+{
+  "name": "playwrightautomationagent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx ts-node main.ts --env dev",
+    "start:dev": "npx ts-node main.ts --env dev",
+    "start:staging": "npx ts-node main.ts --env staging",
+    "start:prod": "npx ts-node main.ts --env prod",
+    "generate": "npx ts-node requirementToMd.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  },
+  "dependencies": {
+    "@types/node": "^25.5.0",
+    "openai": "^6.33.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.2"
+  }
+}

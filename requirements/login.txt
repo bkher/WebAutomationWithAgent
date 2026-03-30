@@ -1,0 +1,11 @@
+Feature: Login Functionality
+Application URL: https://rahulshettyacademy.com/client/#/auth/login
+
+Requirements:
+1. The login page must allow users to enter an email and password.
+2. Clicking the Login button with invalid credentials should display the error message "Incorrect email or password."
+3. Clicking the Login button with valid credentials (email: testuser12@email.com, password: Pass1234$) should show a success toast "Login Successfully" and redirect to the dashboard.
+4. The email field is identified by the locator key: emailField
+5. The password field is identified by the locator key: passwordField
+6. The login button is identified by the locator key: loginButton
+7. Error/success messages are shown in the element identified by: errorMessage
