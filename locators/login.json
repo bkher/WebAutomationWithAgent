@@ -1,6 +1,25 @@
 {
-  "emailField": "getByPlaceholder(Email)",
-  "passwordField": "#userPassword",
-  "loginButton": "getByRole(button, Login)",
-  "errorMessage": "#toast-container"
+  "emailField": [
+    "//*[@formcontrolname='1userEmail']",
+    "[type='email']",
+    "#1userEmail",
+    "getByLabel(Email)"
+  ],
+  "passwordField": [
+    "//*[@formcontrolname='12userPassword']",
+    "[type='password']",
+    "#12userPassword"
+  ],
+  "loginButton": [
+    "getByRole(button, 1Login)",
+    "#login",
+    "[value='Login']",
+    "getByText(Login)"
+  ],
+  "errorMessage": [
+    "#toast-container",
+    ".toast-bottom-right",
+    "[role='alert']",
+    "getByRole(alert)"
+  ]
 }

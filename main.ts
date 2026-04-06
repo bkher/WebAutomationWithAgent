@@ -17,7 +17,7 @@ import { runSteps, globalReport } from "./executor";
     console.log("📂 Reading all .md files...");
 
     const files = fs.readdirSync(folderPath)
-      .filter(file => file.endsWith("out.md"));
+      .filter(file => file.endsWith(".md"));
 
     if (files.length === 0) {
       console.log("❌ No .md files found");

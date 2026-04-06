@@ -6,27 +6,43 @@ An AI-powered, codeless Playwright test automation framework. Write plain-Englis
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Project Structure](#project-structure)
-- [How It Works](#how-it-works)
-  - [Step 1 — Write Requirements](#step-1--write-requirements)
-  - [Step 2 — Generate Test Cases (AI)](#step-2--generate-test-cases-ai)
-  - [Step 3 — Define Locators](#step-3--define-locators)
-  - [Step 4 — Configure Environments](#step-4--configure-environments)
-  - [Step 5 — Run Tests](#step-5--run-tests)
-  - [Step 6 — View Reports](#step-6--view-reports)
-- [Test Case Markdown DSL](#test-case-markdown-dsl)
-  - [Supported Actions](#supported-actions)
-  - [Dynamic Placeholders](#dynamic-placeholders)
-  - [Selector Types](#selector-types)
-- [Environments](#environments)
-- [Locators](#locators)
-- [Project Components](#project-components)
-- [NPM Scripts](#npm-scripts)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Test Suites](#test-suites)
+- [PlaywrightAutomationAgent](#playwrightautomationagent)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Architecture](#architecture)
+  - [Project Structure](#project-structure)
+  - [How It Works](#how-it-works)
+    - [Step 1 — Write Requirements](#step-1--write-requirements)
+    - [Step 2 — Generate Test Cases (AI)](#step-2--generate-test-cases-ai)
+    - [Step 3 — Define Locators](#step-3--define-locators)
+    - [Step 4 — Configure Environments](#step-4--configure-environments)
+    - [Step 5 — Run Tests](#step-5--run-tests)
+    - [Step 6 — View Reports](#step-6--view-reports)
+  - [Self-Healing Locators](#self-healing-locators)
+    - [How Self-Healing Works](#how-self-healing-works)
+    - [Defining Fallback Chains](#defining-fallback-chains)
+    - [Runtime Healing Flow](#runtime-healing-flow)
+    - [Promotion — Persisting the Fix](#promotion--persisting-the-fix)
+    - [Console Output](#console-output)
+    - [Best Practices for Fallback Chains](#best-practices-for-fallback-chains)
+  - [Test Case Markdown DSL](#test-case-markdown-dsl)
+    - [Supported Actions](#supported-actions)
+    - [Dynamic Placeholders](#dynamic-placeholders)
+    - [Selector Types](#selector-types)
+  - [Environments](#environments)
+  - [Locators](#locators)
+  - [Project Components](#project-components)
+    - [`requirementToMd.ts` — AI Requirement Converter](#requirementtomdts--ai-requirement-converter)
+    - [`agent.ts` — Markdown Parser \& Model](#agentts--markdown-parser--model)
+    - [`executor.ts` — Playwright Runner](#executorts--playwright-runner)
+    - [`main.ts` — Orchestrator](#maints--orchestrator)
+  - [NPM Scripts](#npm-scripts)
+  - [Prerequisites](#prerequisites)
+  - [Installation \& Setup](#installation--setup)
+  - [Test Suites](#test-suites)
+    - [Login (`testcases/login.md`)](#login-testcasesloginmd)
+    - [Registration (`testcases/registration.md`)](#registration-testcasesregistrationmd)
+    - [Add to Cart \& Checkout (`testcases/AddToCartAndCheckout.md`)](#add-to-cart--checkout-testcasesaddtocartandcheckoutmd)
 
 ---
 
@@ -225,6 +241,138 @@ The report shows:
 - Environment name and base URL
 - Total steps, passed, and failed counts
 - Per-test table with step number, step name, action, status, and error message
+
+---
+
+## Self-Healing Locators
+
+One of the most critical challenges in UI test automation is **locator fragility** — when a developer renames a CSS class, changes an `id`, or restructures the DOM, every test that relied on that selector breaks immediately.
+
+PlaywrightAutomationAgent solves this with a built-in **self-healing locator system**: each element can have an ordered list of fallback selectors. If the primary selector fails, the framework automatically tries the next one — and, crucially, **writes the working selector back to disk** so that future runs no longer pay the retry cost.
+
+---
+
+### How Self-Healing Works
+
+The mechanism spans three files:
+
+| File | Responsibility |
+|---|---|
+| `locators/*.json` | Stores fallback arrays for each locator key |
+| `agent.ts` → `parseLocatorEntry()` | Converts the array into a typed `ParsedSelector[]` fallback chain |
+| `executor.ts` → `resolveLocatorWithHealing()` | Tries each selector at runtime; heals when a fallback succeeds |
+| `executor.ts` → `promoteHealedLocator()` | Writes the winning fallback back to the JSON as the new primary |
+
+---
+
+### Defining Fallback Chains
+
+In your `locators/*.json` file, supply an **array** of selectors instead of a single string. The framework tries them **in order** — first to find an attached element wins.
+
+```json
+{
+  "emailField": [
+    "//*[@formcontrolname='userEmail']",
+    "[type='email']",
+    "#userEmail",
+    "getByLabel(Email)"
+  ],
+  "loginButton": [
+    "getByRole(button, Login)",
+    "#login",
+    "[value='Login']",
+    "getByText(Login)"
+  ]
+}
+```
+
+- **Index 0** is the **primary** selector. It gets a generous 5-second wait.
+- **Index 1+** are **fallbacks**. Each gets a shorter 2-second probe timeout to keep execution fast.
+- A single string value (non-array) is still supported — it is treated as a one-element chain with no fallbacks.
+
+---
+
+### Runtime Healing Flow
+
+```
+Step execution
+      │
+      ▼
+resolveLocatorWithHealing(page, selectors[], locatorKey, locatorsFile)
+      │
+      ├─► Try selectors[0]  ── waitFor({ attached }, 5 s)
+      │       ├── ✅ Found  →  use it, log "🎯 Locator [key]: using primary"
+      │       └── ❌ Timeout →  try next …
+      │
+      ├─► Try selectors[1]  ── waitFor({ attached }, 2 s)
+      │       ├── ✅ Found  →  log "🔧 Self-Healed [key]: primary failed — using fallback[1]"
+      │       │               call promoteHealedLocator(file, key, 1)
+      │       │               use this locator for the rest of the step
+      │       └── ❌ Timeout →  try next …
+      │
+      ├─► Try selectors[2…N]  (same pattern)
+      │
+      └─► All exhausted  →  throw "No working locator found for <key>"  →  step FAILED
+```
+
+**Key detail:** The promoted locator is returned and used for the **current run** without restarting the step. Healing is transparent to the test logic.
+
+---
+
+### Promotion — Persisting the Fix
+
+When a fallback at index `i > 0` succeeds, `promoteHealedLocator()` is called immediately:
+
+1. Reads `locators/<file>.json` from disk.
+2. Splices the winning selector out of its current position.
+3. Unshifts it to index 0 (making it the new primary).
+4. Writes the updated JSON back to disk with 2-space indentation.
+
+**Before healing** (`locators/login.json`):
+```json
+{
+  "emailField": [
+    "//*[@formcontrolname='1userEmail']",
+    "[type='email']",
+    "#userEmail",
+    "getByLabel(Email)"
+  ]
+}
+```
+
+**After healing** (fallback `[type='email']` was the winner):
+```json
+{
+  "emailField": [
+    "[type='email']",
+    "//*[@formcontrolname='1userEmail']",
+    "#userEmail",
+    "getByLabel(Email)"
+  ]
+}
+```
+
+On the next run, `[type='email']` is tried first and succeeds immediately — no retries needed.
+
+---
+
+### Console Output
+
+| Scenario | Console message |
+|---|---|
+| Primary selector works | `🎯 Locator [emailField]: using primary → "//*[@formcontrolname='userEmail']"` |
+| Fallback heals the step | `🔧 Self-Healed [emailField]: primary failed — using fallback[1] → "[type='email']"` |
+| Locator file updated | `💾 Locator promoted: "emailField" → fallback[1] is now primary` |
+| All selectors exhausted | Step is marked ❌ FAILED with error `No working locator found for "emailField"` |
+
+---
+
+### Best Practices for Fallback Chains
+
+- **Order robust → fragile**: Put the most stable selector (e.g., semantic `getByRole`, `getByLabel`) nearest the front. Put brittle auto-generated XPaths further back as last-resort fallbacks.
+- **Keep chains short (3–5 entries)**: Each failed probe adds up to 2 seconds to step execution.
+- **Review healed locators**: After a self-heal event, inspect the promoted selector and optionally update your source to keep the most stable strategy at index 0.
+- **Single selectors still work**: A non-array locator value is a valid one-entry chain — healing simply has no fallback to try.
 
 ---
 

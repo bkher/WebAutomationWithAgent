@@ -22,7 +22,9 @@ function resolveLocator(page: any, selector: any) {
 
     // Locate by ARIA role with an accessible name
     case "role":
-      return page.getByRole(selector.role, { name: selector.name }).first();
+      return selector.name
+        ? page.getByRole(selector.role, { name: selector.name }).first()
+        : page.getByRole(selector.role).first();
 
     // Locate by visible text content
     case "text":
@@ -51,7 +53,60 @@ function resolveLocator(page: any, selector: any) {
   }
 }
 
-// 🚀 Launches a browser, executes each step sequentially, and appends results to the global report
+// � Tries each selector in the fallback chain. Returns the first one that finds an element.
+// If a fallback (index > 0) is used, logs the healing event and promotes it to primary in the JSON.
+async function resolveLocatorWithHealing(
+  page: any,
+  selectors: any[],
+  locatorKey?: any,
+  locatorsFile?: string
+): Promise<any> {
+  if (!selectors || selectors.length === 0)
+    throw new Error(`No selectors provided for "${locatorKey}"`);
+
+  let lastError: Error = new Error(`No working locator found for "${locatorKey}"`);
+
+  for (let i = 0; i < selectors.length; i++) {
+    // Primary gets more time; fallbacks use a shorter probe timeout
+    const timeout = i === 0 ? 5000 : 2000;
+    try {
+      const locator = resolveLocator(page, selectors[i]);
+      await locator.waitFor({ state: "attached", timeout });
+      const raw = selectors[i].raw || selectors[i].value || selectors[i].type;
+      if (i === 0) {
+        console.log(`   🎯 Locator [${locatorKey ?? "?"}]: using primary → "${raw}"`);
+      } else {
+        console.log(`🔧 Self-Healed [${locatorKey}]: primary failed — using fallback[${i}] → "${raw}"`);
+        if (locatorsFile) promoteHealedLocator(locatorsFile, locatorKey, i);
+      }
+      return locator;
+    } catch (e: any) {
+      lastError = e;
+    }
+  }
+
+  throw lastError;
+}
+
+// 💾 Moves the healed selector to index 0 in the JSON array so the next run uses it as primary.
+function promoteHealedLocator(locatorsFile: string, locatorKey: string, healedIndex: number) {
+  try {
+    const filePath = `./locators/${locatorsFile}.json`;
+    const locators: Record<string, any> = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    const entry = locators[locatorKey];
+    if (Array.isArray(entry) && healedIndex > 0) {
+      const [healed] = entry.splice(healedIndex, 1);
+      entry.unshift(healed);
+      locators[locatorKey] = entry;
+      fs.writeFileSync(filePath, JSON.stringify(locators, null, 2));
+      console.log(`💾 Locator promoted: "${locatorKey}" → fallback[${healedIndex}] is now primary`);
+    }
+  } catch (e: any) {
+    console.warn(`⚠️ Could not update locator file for healing: ${e.message}`);
+  }
+}
+
+// �🚀 Launches a browser, executes each step sequentially, and appends results to the global report
 export async function runSteps(steps: any[], testName: string = "Test") {
   // Launch Firefox in headed mode so the browser is visible during execution
   const browser = await firefox.launch({ headless: false });
@@ -76,43 +131,53 @@ export async function runSteps(steps: any[], testName: string = "Test") {
           break;
 
         // ✏️ Type a value into the resolved input field
-        case "fill":
+        case "fill": {
           if (!step.selector) throw new Error("Missing selector");
-          await resolveLocator(page, step.selector).fill(""); // Clear existing value
-          await resolveLocator(page, step.selector).fill(step.value);
+          const fillEl = await resolveLocatorWithHealing(page, step.selector, step.locatorKey, step.locatorsFile);
+          await fillEl.fill(""); // Clear existing value
+          await fillEl.fill(step.value);
           break;
+        }
          
-        case "fillByCharacter":
+        case "fillByCharacter": {
           if (!step.selector) throw new Error("Missing selector");
-          await resolveLocator(page, step.selector).fill(""); // Clear existing value
-          await resolveLocator(page, step.selector).pressSequentially(step.value, { delay: 500 });
+          const seqEl = await resolveLocatorWithHealing(page, step.selector, step.locatorKey, step.locatorsFile);
+          await seqEl.fill(""); // Clear existing value
+          await seqEl.pressSequentially(step.value, { delay: 500 });
           break;
+        }
 
         // 🖱️ Click the resolved element
-        case "click":
+        case "click": {
           if (!step.selector) throw new Error("Missing selector");
-          await resolveLocator(page, step.selector).click();
+          const clickEl = await resolveLocatorWithHealing(page, step.selector, step.locatorKey, step.locatorsFile);
+          await clickEl.click();
           break;
+        }
 
         // 📋 Select a dropdown option by its visible label
-        case "select":
+        case "select": {
           if (!step.selector) throw new Error("Missing selector");
-          await resolveLocator(page, step.selector).selectOption({ label: step.value });
+          const selectEl = await resolveLocatorWithHealing(page, step.selector, step.locatorKey, step.locatorsFile);
+          await selectEl.selectOption({ label: step.value });
           break;
+        }
           
         // ✅ Wait for the element to appear, then assert its text content contains the expected value
-        case "verifyText":
+        case "verifyText": {
           if (!step.selector) throw new Error("Missing selector");
-          await resolveLocator(page, step.selector).waitFor();
+          const verifyEl = await resolveLocatorWithHealing(page, step.selector, step.locatorKey, step.locatorsFile);
+          await verifyEl.waitFor();
 
           if (step.value) {
-            const text = await resolveLocator(page, step.selector).textContent();
+            const text = await verifyEl.textContent();
 
             if (!text?.includes(step.value)) {
               throw new Error(`Expected: ${step.value}, Found: ${text}`);
             }
           }
           break;
+        }
 
         // ⏳ Pause execution for the specified duration (in milliseconds)
         case "wait":
