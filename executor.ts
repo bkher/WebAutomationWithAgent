@@ -109,7 +109,7 @@ function promoteHealedLocator(locatorsFile: string, locatorKey: string, healedIn
 // �🚀 Launches a browser, executes each step sequentially, and appends results to the global report
 export async function runSteps(steps: any[], testName: string = "Test") {
   // Launch Firefox in headed mode so the browser is visible during execution
-  const browser = await firefox.launch({ headless: false });
+  const browser = await firefox.launch({ headless: true });
   const context = await browser.newContext({ ignoreHTTPSErrors: true });
   const page = await context.newPage();
 
