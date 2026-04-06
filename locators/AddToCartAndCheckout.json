@@ -1,14 +1,52 @@
 {
-  "emailField": "#userEmail",
-  "passwordField": "#userPassword",
-  "loginButton": "[value='Login']",
-  "toastMessage": "#toast-container",
-
-  "addToCartButton": "getByRole(button, Add To Cart)",
-  "cartButton": "getByRole(button, Cart)",
-  "checkoutButton": "getByRole(button, Buy Now)",
-  "placeOrderLink": "//a[contains(text(),'Place Order')]",
-
-  "countryInput": "getByPlaceholder(Select Country)",
-  "countryOptionIndia": "getByRole(button, India)"
+  "emailField": [
+    "getByPlaceholder(Email)",
+    "#userEmail",
+    "[type='email']"
+  ],
+  "passwordField": [
+    "#userPassword",
+    "getByPlaceholder(Password)",
+    "[type='password']"
+  ],
+  "loginButton": [
+    "getByRole(button, Login)",
+    "[value='Login']",
+    "getByText(Login)"
+  ],
+  "toastMessage": [
+    "#toast-container",
+    ".toast-error",
+    "[role='alert']"
+  ],
+  "addToCartButton": [
+    "getByText(Add To Cart)",
+    "getByRole(button, Add To Cart)",
+    ".card-footer button"
+  ],
+  "cartButton": [
+    "getByText(Cart)",
+    "getByRole(button, Cart)",
+    "[routerlink='/dashboard/cart']"
+  ],
+  "checkoutButton": [
+    "getByText(Buy Now)",
+    "getByRole(button, Buy Now)",
+    ".btn-primary"
+  ],
+  "placeOrderLink": [
+    "getByText(Place Order)",
+    "//a[contains(text(),'Place Order')]",
+    "[href*='order']"
+  ],
+  "countryInput": [
+    "[placeholder='Select Country']",
+    "getByPlaceholder(Select Country)",
+    "#country"
+  ],
+  "countryOptionIndia": [
+    "getByText(India)",
+    "getByRole(button, India)",
+    ".ta-results button:has-text('India')"
+  ]
 }

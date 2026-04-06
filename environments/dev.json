@@ -4,5 +4,6 @@
   "validEmail": "testuser12@email.com",
   "validPassword": "Pass1234$",
   "invalidEmail": "testuser@email.com",
-  "invalidPassword": "password"
+  "invalidPassword": "password",
+  "OPENAI_API_KEY": "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"
 }

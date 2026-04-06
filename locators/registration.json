@@ -1,18 +1,18 @@
 {
-  "registerLink": "//a[contains(text(),'Register here')]",
+  "registerLink":         ["//a[contains(text(),'Register here')]", "getByText(Register here)", "[href*='register']"],
 
-  "firstNameField": "#firstName",
-  "lastNameField": "#lastName",
-  "emailField": "#userEmail",
-  "mobileField": "#userMobile",
-  "passwordField": "#userPassword",
-  "confirmPasswordField": "#confirmPassword",
+  "firstNameField":       ["#firstName", "getByPlaceholder(First Name)", "getByLabel(First Name)"],
+  "lastNameField":        ["#lastName",  "getByPlaceholder(Last Name)",  "getByLabel(Last Name)"],
+  "emailField":           ["#userEmail", "getByPlaceholder(Email)", "[type='email']"],
+  "mobileField":          ["#userMobile", "getByPlaceholder(Mobile Number)", "[type='tel']"],
+  "passwordField":        ["#userPassword", "getByPlaceholder(Password)", "[type='password']"],
+  "confirmPasswordField": ["#confirmPassword", "getByPlaceholder(Confirm Password)"],
 
-  "occupationDropdown": "[formcontrolname='occupation']",
+  "occupationDropdown":   ["[formcontrolname='occupation']", "getByLabel(Occupation)"],
 
-  "termsCheckbox": "[type='checkbox']",
-  "genderFemale": "[value='Female']",
-  "registerButton": "[value='Register']",
+  "termsCheckbox":        ["[type='checkbox']", "getByRole(checkbox)"],
+  "genderFemale":         ["[value='Female']", "getByLabel(Female)"],
+  "registerButton":       ["[value='Register']", "getByRole(button, Register)", "getByText(Register)"],
 
-  "toastMessage": "#toast-container"
+  "toastMessage":         ["#toast-container", ".toast-error", "[role='alert']"]
 }
